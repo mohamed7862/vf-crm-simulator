@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vodafone Enterprise Unified Portal (Siebel - Es2alny - CCAT)</title>
+  <style>
+    * { box-sizing: border-box; font-family: Tahoma, Arial, sans-serif; font-size: 11px; }
+    body { margin: 0; padding: 0; background-color: #ECE9D8; color: #000; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Top Main Switcher */
+    .system-switcher { background: #1C1C1C; color: white; display: flex; justify-content: space-between; align-items: center; padding: 2px 8px; border-bottom: 2px solid #E60000; }
+    .sys-tab { background: #444; color: #FFF; border: 1px solid #666; padding: 5px 14px; margin-right: 4px; cursor: pointer; font-weight: bold; border-radius: 3px 3px 0 0; }
+    .sys-tab.active-sys { background: #E60000; color: white; border-color: #E60000; }
+    
+    /* Oracle UI Controls */
+    .titlebar { background: linear-gradient(to right, #0A246A, #A6CAF0); color: white; padding: 3px 6px; font-weight: bold; display: flex; justify-content: space-between; }
+    .menubar { background: #ECE9D8; border-bottom: 1px solid #999; padding: 2px 5px; display: flex; gap: 12px; }
+    .toolbar { background: #F4F3EE; border-bottom: 2px groove #fff; padding: 3px 6px; display: flex; gap: 6px; align-items: center; }
+    
+    .btn { background: #ECE9D8; border: 1px solid #7F9DB9; padding: 2px 8px; cursor: pointer; font-size: 11px; box-shadow: inset 1px 1px #fff, inset -1px -1px #999; }
+    .btn:hover { background: #E0DFD8; }
+    .btn:active { box-shadow: inset 1px 1px #999; }
+    .btn-red { background: #D9534F; color: white; border: 1px solid #900; }
+
+    .main-workspace { display: flex; flex: 1; height: calc(100vh - 105px); }
+    
+    /* Left Tree & Side-In Panel */
+    .left-tree { width: 255px; background: #FFF; border: 2px inset #FFF; margin: 3px; display: flex; flex-direction: column; overflow-y: auto; }
+    .tree-header { background: #7F9DB9; color: white; padding: 4px 6px; font-weight: bold; }
+    .tree-node { padding: 4px 6px; cursor: pointer; user-select: none; }
+    .tree-node:hover { background-color: #B2D1F0; }
+    .tree-node.active { background-color: #0A246A; color: white; }
+    .tree-sub { padding-left: 18px; font-size: 11px; }
+
+    /* Side-In Summary Box & Verification */
+    .side-info-panel { background: #FFFFCC; border: 1px solid #E6DB55; padding: 6px; margin: 4px; border-radius: 2px; }
+    .side-info-panel h4 { margin: 0 0 4px 0; color: #0A246A; font-size: 11px; border-bottom: 1px solid #E6DB55; padding-bottom: 2px; }
+
+    /* Right Workspace */
+    .right-content { flex: 1; display: flex; flex-direction: column; margin: 3px; background: #ECE9D8; overflow-y: auto; }
+    .tab-strip { display: flex; background: #ECE9D8; border-bottom: 1px solid #7F9DB9; padding-left: 5px; gap: 2px; overflow-x: auto; }
+    .tab-strip div { border: 1px solid #7F9DB9; border-bottom: none; padding: 4px 10px; background: #D4D0C8; cursor: pointer; white-space: nowrap; }
+    .tab-strip div.active { background: #FFF; font-weight: bold; border-top: 2px solid #D9534F; }
+    
+    .applet-body { background: #FFF; border: 2px inset #EEE; padding: 8px; flex: 1; overflow-y: auto; }
+    .grid-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; align-items: center; background: #F9F9F9; padding: 6px; border: 1px solid #D4D0C8; }
+    .grid-form label { font-weight: bold; color: #333; }
+    .grid-form input, .grid-form select { border: 1px solid #7F9DB9; padding: 2px 4px; font-size: 11px; background: #FFF; }
+    .grid-form input[readonly] { background: #EBE9ED; }
+
+    table.s-table { width: 100%; border-collapse: collapse; border: 1px solid #7F9DB9; margin-top: 5px; }
+    table.s-table th { background: #7F9DB9; color: white; border: 1px solid #999; padding: 4px; text-align: left; }
+    table.s-table td { border: 1px solid #D4D0C8; padding: 4px; vertical-align: top; }
+    table.s-table tr:nth-child(even) { background-color: #F4F3EE; }
+    table.s-table tr:hover { background-color: #FFFFCC; }
+
+    .status-bar { background: #ECE9D8; border-top: 1px solid #999; padding: 2px 8px; display: flex; justify-content: space-between; font-size: 10px; }
+    .badge-ok { background: #DFF0D8; color: #3C763D; padding: 1px 4px; font-weight: bold; border: 1px solid #D6E9C6; }
+    .badge-err { background: #F2DEDE; color: #A94442; padding: 1px 4px; font-weight: bold; border: 1px solid #EBCCD1; }
+
+    .system-module { display: none; height: calc(100vh - 50px); padding: 10px; background: #FFF; border: 2px inset #FFF; overflow-y: auto; }
+    .cat-btn { background: #E0DFD8; border: 1px solid #999; padding: 3px 8px; cursor: pointer; border-radius: 2px; font-weight: bold; }
+    .cat-btn.active-cat { background: #0A246A; color: white; border-color: #0A246A; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Multi-System Switcher -->
+  <div class="system-switcher">
+    <div>
+      <button class="sys-tab active-sys" onclick="switchMainSystem('siebel', this)">1. Siebel CRM (Enterprise)</button>
+      <button class="sys-tab" onclick="switchMainSystem('asalny', this)">2. Es2alny (Knowledge Base)</button>
+      <button class="sys-tab" onclick="switchMainSystem('ccat', this)">3. CCAT (Admin & Products View)</button>
+    </div>
+    <div style="font-size: 10px; color: #CCC;">Vodafone Enterprise Suite v2026.1</div>
+  </div>
+
+  <!-- ==================== SYSTEM 1: SIEBEL CRM ==================== -->
+  <div id="siebel-system" style="display: flex; flex-direction: column; flex: 1;">
+    <div class="titlebar">
+      <span>Siebel Service Telecom - GSM Service Account Profile</span>
+      <span>Oracle Siebel 8.1 Enterprise</span>
+    </div>
+
+    <div class="menubar">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>N</u>avigate</span><span><u>Q</u>uery</span><span><u>H</u>elp</span>
+    </div>
+
+    <div class="toolbar">
+      <label><b>Query MSISDN:</b></label>
+      <input type="text" id="queryInput" value="1012345678" style="width: 100px;">
+      <button class="btn" onclick="searchMsisdn()">[Execute Query (Enter)]</button>
+      <span style="color: #666; margin-left: 10px;">(Test Accounts: <b>1012345678</b>, <b>1055554444</b>, <b>1099998888</b>, <b>1033332222</b>, <b>1077776666</b>, <b>1044441111</b>)</span>
+    </div>
+
+    <div class="main-workspace">
+      <!-- Left Tree View & Verification Side-In -->
+      <div class="left-tree">
+        <div class="tree-header">GSM Tree Views</div>
+        <div class="tree-node active" id="tree-summary" onclick="loadSiebelView('summary')">▶ <b>GSM Summary</b></div>
+        <div class="tree-node tree-sub" id="tree-line-status" onclick="loadSiebelView('line-status')">• Line Status & Suspension</div>
+        <div class="tree-node tree-sub" id="tree-sim-swap" onclick="loadSiebelView('sim-swap')">• SIM Card Operations (Swap)</div>
+        <div class="tree-node tree-sub" id="tree-supp-services" onclick="loadSiebelView('supp-services')">• Supplementary (Int'l / GPRS)</div>
+        <div class="tree-node tree-sub" id="tree-sub-mgmt" onclick="loadSiebelView('sub-mgmt')">• Subscription Mgmt (Scratch)</div>
+        <div class="tree-node tree-sub" id="tree-on-bill" onclick="loadSiebelView('on-bill')">• 3alfatoora & MI On-Bill</div>
+        <div class="tree-node tree-sub" id="tree-payment" onclick="loadSiebelView('payment')">• <b>Billing & Bill Cycle</b></div>
+        <div class="tree-node" id="tree-history" onclick="loadSiebelView('history')">▶ <b>Line Lifecycle Audit Trail</b></div>
+
+        <!-- Side-In Quick Info & ID Verification Panel -->
+        <div class="side-info-panel">
+          <h4>Account Side-In (Anonymous)</h4>
+          <p style="margin:2px 0;"><b>Role:</b> <span id="side-role" style="color:navy; font-weight:bold;">--</span></p>
+          <p style="margin:2px 0;"><b>Segment:</b> <span id="side-segment">--</span></p>
+          <p style="margin:2px 0;"><b>Bill Cycle Code:</b> <span id="side-bc" style="color:#A00; font-weight:bold;">--</span></p>
+          <p style="margin:2px 0;"><b>Renewal Day:</b> <span id="side-renewday">--</span></p>
+          <p style="margin:2px 0;"><b>Lifecycle State:</b> <span id="side-state" style="font-weight:bold;">--</span></p>
+          
+          <div style="margin-top:6px; border-top:1px dashed #CCC; padding-top:4px;">
+            <b>1-Factor MFA Verification:</b>
+            <div style="display:flex; gap:2px; margin-top:3px;">
+              <input type="text" id="idVerifyInput" placeholder="Last 7 digits of ID" style="width:115px; border:1px solid #7F9DB9;">
+              <button class="btn" onclick="verifyNationalID()">Verify</button>
+            </div>
+            <div id="verifyResult" style="margin-top:3px; font-weight:bold;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Applet Area -->
+      <div class="right-content">
+        <div style="background: #EBE9ED; border: 1px solid #7F9DB9; margin-bottom: 2px; padding: 4px;">
+          <div class="grid-form" style="grid-template-columns: repeat(6, 1fr);">
+            <label>MSISDN:</label><input type="text" id="h-msisdn" readonly>
+            <label>Account Class:</label><input type="text" id="h-role" readonly style="font-weight:bold; color:navy;">
+            <label>Price Group:</label><input type="text" id="h-pricegroup" readonly>
+            <label>Line Status:</label><span id="h-status" class="badge-ok">ACTIVE</span>
+            <label>Rate Plan Name:</label><input type="text" id="h-plan" readonly>
+            <label>Bill Cycle Code:</label><input type="text" id="h-bc" readonly style="font-weight:bold; color:#A00;">
+          </div>
+        </div>
+
+        <div class="tab-strip">
+          <div id="tab-btn-summary" class="active" onclick="loadSiebelView('summary')">Line Overview</div>
+          <div id="tab-btn-line-status" onclick="loadSiebelView('line-status')">Suspension</div>
+          <div id="tab-btn-sim-swap" onclick="loadSiebelView('sim-swap')">SIM Swap</div>
+          <div id="tab-btn-supp-services" onclick="loadSiebelView('supp-services')">Supplementary (Intl/GPRS)</div>
+          <div id="tab-btn-sub-mgmt" onclick="loadSiebelView('sub-mgmt')">Subscription Mgmt</div>
+          <div id="tab-btn-on-bill" onclick="loadSiebelView('on-bill')">3alfatoora / On-Bill</div>
+          <div id="tab-btn-payment" onclick="loadSiebelView('payment')">Billing & Renewal Date</div>
+          <div id="tab-btn-history" onclick="loadSiebelView('history')">Lifecycle History</div>
+        </div>
+
+        <div class="applet-body" id="siebel-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SYSTEM 2: ES2ALNY KNOWLEDGE BASE ==================== -->
+  <div id="asalny-system" class="system-module">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E60000; padding-bottom:4px; margin-bottom:8px;">
+      <h3 style="margin:0; color:#E60000;">Es2alny - Enterprise Customer Care Knowledge Base (Full Material Reference)</h3>
+      <span style="color:#666;">Comprehensive Training Guide 2026</span>
+    </div>
+
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+      <input type="text" id="asalnySearch" placeholder="Search knowledge base (e.g. bc, flex, mck, call tone, zone, swap, mfa, htr)..." style="width: 320px; padding: 4px;" onkeyup="filterAsalny()">
+      <div style="display:flex; gap:4px;">
+        <button class="cat-btn active-cat" onclick="filterCategory('ALL', this)">All Topics</button>
+        <button class="cat-btn" onclick="filterCategory('PLANS', this)">Rate Plans</button>
+        <button class="cat-btn" onclick="filterCategory('VAS', this)">VAS & Services</button>
+        <button class="cat-btn" onclick="filterCategory('INTL', this)">Roaming & Intl</button>
+        <button class="cat-btn" onclick="filterCategory('DATA', this)">Mobile Internet</button>
+        <button class="cat-btn" onclick="filterCategory('POLICY', this)">Policies & MFA</button>
+      </div>
+    </div>
+
+    <table class="s-table" id="asalnyTable">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Category / Topic</th>
+          <th>Complete Details, Quotas, Pricing & USSD Codes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- RATE PLANS -->
+        <tr data-cat="PLANS">
+          <td><b>Bill Cycles (دورة الفاتورة ومواعيد التجديد)</b></td>
+          <td>
+            • <b>BC 07:</b> يبدأ من يوم 7 وينتهي يوم 6 من الشهر التالي[cite: 1].<br>
+            • <b>BC 11:</b> يبدأ من يوم 11 وينتهي يوم 10 من الشهر التالي[cite: 1].<br>
+            • <b>BC 09 (المسجل كـ 20):</b> يبدأ من يوم 20 وينتهي يوم 19 من الشهر التالي[cite: 1].<br>
+            • <b>BC 25:</b> يبدأ من يوم 25 وينتهي يوم 24 من الشهر التالي[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="PLANS">
+          <td><b>Business El-Asly (2013/2014)</b></td>
+          <td>
+            • Bundles: 45 (52 LE / 90 X-Net), 80 (92 LE / 180 X-Net), 120 (140 LE / 400 X-Net), 150 (175 LE / 600 X-Net), 300 (345 LE / 1300 X-Net) + 1200 to 4500 Intra/On-net min[cite: 1].<br>
+            • Follow up: 19 PT/min, SMS, MB[cite: 1].<br>
+            • <b>Asly Extra (DA 15):</b> *010*3# (4 LE / 90 Min), *010*5# (6.5 LE / 180 Min), *010*10# (13 LE / 450 Min)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="PLANS">
+          <td><b>Business Flex (2017 / 2020)</b></td>
+          <td>
+            • Flex 2017: Bundles from 45 (52 LE / 900 Flex) to 150 (175 LE / 5000 Flex)[cite: 1]. On-net/SMS/MB = 1 Flex | X-Net = 5 Flexes[cite: 1].<br>
+            • Flex 2020: Flex 60 (1500 Flex), Flex 69 (2000 Flex), Flex 98 (3300 Flex), Flex 126 (4400 Flex), Flex 155 (5500 Flex) + 1500 Intra Min[cite: 1].<br>
+            • Follow-up: 19 PT/min & MB, 30 PT/SMS, 99 PT/Intl SMS[cite: 1].<br>
+            • <b>Flex Extra (DA 27):</b> *010*3# (4.5 LE / 75 Flex), *010*5# (7.5 LE / 150 Flex), *010*10# (15 LE / 350 Flex)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="PLANS">
+          <td><b>Business Flex (2022 / 2025)</b></td>
+          <td>
+            • Flex 2022: Flex 69 (2000 Units), Flex 75 (2500 Units), Flex 115 (3500 Units + Shahid/Anghami), Flex 165 (6000 Units + Watch IT)[cite: 1].<br>
+            • Flex 2025: Flex 80 (3000 Flex + Watch IT), Flex 115 (5000 Flex + Yango Play), Flex 175 (9500 Flex) + 1000 Intra min + Free EOCN/MCK[cite: 1].<br>
+            • <b>Flex Extra (2022/2025):</b> *010*24*5# (7.5 LE / 200 Flex), *010*24*10# (15 LE / 450 Flex), *010*24*20# (29 LE / 1000 Flex)[cite: 1]. (DA27 on-demand / DA32 renewable)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="PLANS">
+          <td><b>Vodafone Red Business (2018 / 2020 / 2026)</b></td>
+          <td>
+            • Red 2018: Red 345 (1500 Min/7GB), Red 520 (3000 Min/15GB), Red 860 (5000 Min/28GB), Red 1380 (8000 Min/50GB)[cite: 1].<br>
+            • Red 2020: Free DSL (140GB/300GB), 1000 Intra min, Take bundle abroad (1 to 3 weeks/year), Apps (OSN, Shahid VIP, WATCH it, beIN)[cite: 1].<br>
+            • Red 2026: New tiers (415 to 3450 LE) with 10GB to 200GB data, 2500 to 11000 min, Talabat Pro, BeFit & QANZ Card benefits[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="PLANS">
+          <td><b>Telecom Egypt Revamp & El Super 2016</b></td>
+          <td>
+            • TE Revamp 2016: VF Extra Control (46 LE) -> 2200 On-net (DA5), 120 X-net (DA2), 1000 Intra (DA1)[cite: 1]. Renew: *8770#[cite: 1].<br>
+            • El Super 2016 (Gov/Syndicates): 46 LE -> 1200 On-net (DA5), 90 X-net (DA2), 1500 Intra (DA1)[cite: 1]. 22 PT/min, 34 PT/SMS, 1.25 LE per 10 MB[cite: 1].
+          </td>
+        </tr>
+
+        <!-- VAS & SERVICES -->
+        <tr data-cat="VAS">
+          <td><b>Call Tone (الكول تون)</b></td>
+          <td>
+            • <b>Subscription:</b> Monthly = 3 LE | 15 Days = 1.5 LE | 7 Days = 75 PT | Daily = 10 PT[cite: 1].<br>
+            • <b>Opt-in Methods:</b> Dial 5555 (50 PT/min), Code *055*Code# (1 PT), SMS song code to 5555 (50 PT), Press * when listening to song, or VF Web[cite: 1].<br>
+            • <b>Deactivation:</b> Dial *055*0# (1 PT), IVR 5555, Ana VF App, or send "BLOCK" to 5555[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="VAS">
+          <td><b>Missed Call Keeper (MCK)</b></td>
+          <td>
+            • <b>Monthly:</b> 5 LE/month -> Code: *888*3#[cite: 1].<br>
+            • <b>Daily:</b> 20 PT/day -> Code: *777*07#[cite: 1].<br>
+            • <b>Deactivation:</b> *888*31#[cite: 1].<br>
+            • <b>Language Change:</b> Arabic (*777*10#) | English (*777*20#)[cite: 1].<br>
+            • <b>Unreachable Simulation:</b> Send SMS to 7777 and divert calls to 777[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="VAS">
+          <td><b>End of Call Notification (EOCN)</b></td>
+          <td>
+            • Cost: 1 LE / Month[cite: 1]. Shows remaining balance after each call[cite: 1].<br>
+            • <b>End User (Scratch Balance):</b> Dial *9001# to activate | Dial *9000# to deactivate[cite: 1].<br>
+            • <b>On Bill (Authorized):</b> Add via *247# or Siebel Supplementary Tab[cite: 1]. If added by Auth, only Auth can remove it[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="VAS">
+          <td><b>Vodafone Cash (فودافون كاش)</b></td>
+          <td>
+            • Available for Enterprise lines[cite: 1]. Subscription at any VF branch with valid National ID[cite: 1].<br>
+            • Customer MUST be registered in Siebel "Contacts" tab[cite: 1]. If not registered, EU dials *010*98# first[cite: 1].<br>
+            • Dedicated Helpdesk: 7001 (50 PT/call)[cite: 1]. Password reset & suspension removal require branch visit[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="VAS">
+          <td><b>Multi-SIM Service</b></td>
+          <td>
+            • Allows up to 3 extra SIMs + primary SIM[cite: 1]. Active for outgoing calls/data on all; incoming on 1 SIM (selected via *111#)[cite: 1].<br>
+            • Cost: 5 LE/month per extra SIM[cite: 1]. Open lines and Business Red only (Not available for Data lines or VPN)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="VAS">
+          <td><b>Balance Transfer (تحويل الرصيد)</b></td>
+          <td>
+            • <b>Channels:</b> IVR 868 (20 PT), Code *868*2*Number*Amount# (19 PT), VF.EG / Ana VF App (Free)[cite: 1].<br>
+            • <b>Control Lines:</b> Transfer limit: Min 1 LE, Max 50 LE. Tax = 2% for amounts > 10 LE[cite: 1].<br>
+            • <b>Postpaid Lines:</b> Max limit based on line rating. Tax = 18%[cite: 1]. Auth must call 247 for 1st time activation[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="VAS">
+          <td><b>VoLTE & Wi-Fi Calling</b></td>
+          <td>
+            • <b>Wi-Fi Calling:</b> Make calls over any stable DSL Wi-Fi without mobile network[cite: 1]. Deducted from bundle minutes + max 10MB per 30 min from DSL[cite: 1].<br>
+            • Activation: Ana VF App -> enable Wi-Fi calling in phone settings[cite: 1]. Test support via *400#[cite: 1]. Note: Airplane mode not supported[cite: 1].<br>
+            • (Samsung & OPPO pending manufacturer software updates)[cite: 1].
+          </td>
+        </tr>
+
+        <!-- INTERNATIONAL & ROAMING -->
+        <tr data-cat="INTL">
+          <td><b>International Calling Zones</b></td>
+          <td>
+            • <b>Zone 1 (22 Countries):</b> 10 LE/min (Arab countries, USA, Canada)[cite: 1]. SMS = 5 LE[cite: 1].<br>
+            • <b>Zone 2 (49 Countries):</b> 10 LE/min (Europe, Turkey, UK, Russia)[cite: 1]. SMS = 5 LE[cite: 1].<br>
+            • <b>Zone 3 (104 Countries):</b> 10 LE/min (Asia, Latin America, Africa)[cite: 1]. SMS = 5 LE[cite: 1].<br>
+            • <b>HTR 1 (47 Countries):</b> 30 LE/min (Hard to reach: e.g. Morocco, Zimbabwe, Switzerland, Belgium)[cite: 1].<br>
+            • <b>HTR 2 (20 Countries):</b> 45 LE/min (Very hard: e.g. Tunisia, Algeria, Cuba, Maldives, Falkland)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="INTL">
+          <td><b>World Between Your Hand (العالم بين إيديك)</b></td>
+          <td>
+            • International calls at 5 LE/min[cite: 1]. (Except HTR destinations)[cite: 1].<br>
+            • <b>Option 1 (Monthly):</b> 30 LE / Month[cite: 1].<br>
+            • <b>Option 2 (Per Call):</b> 4.5 LE setup fee per call (1st min = 9.5 LE, then 5 LE/min)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="INTL">
+          <td><b>Roaming Services (التجوال)</b></td>
+          <td>
+            • Manage roaming bundles via Ana VF App or USSD *202#[cite: 1]. Roaming Helpdesk from abroad: +201001888888 (Free for Open lines)[cite: 1].<br>
+            • Control lines: Service active automatically via scratch balance[cite: 1].<br>
+            • Open lines: Charge on bill (Auth approval via 247) OR Scratch balance via code *102#[cite: 1].
+          </td>
+        </tr>
+
+        <!-- MOBILE INTERNET -->
+        <tr data-cat="DATA">
+          <td><b>Extreme Bundles & Super Pass</b></td>
+          <td>
+            • <b>Extreme Net:</b> 150MB (7.5 LE / *2005#), 500MB (15 LE / *2010#), 1100MB (30 LE / *2020#), 1800MB (46 LE / *2030#), 2500MB (60 LE / *2040#), 4000MB (92 LE / *2060#), 6000MB (120 LE / *2080#), 8000MB (150 LE / *2100#), 12GB (225 LE / *2150#), 20GB (375 LE / *2250#), 40GB (600 LE / *2400#)[cite: 1].<br>
+            • <b>Super Pass:</b> Social / Streaming (250MB/9 LE to 4750MB/85 LE)[cite: 1]. Combo: 10GB/155 LE, 18GB/260 LE, 29GB/390 LE[cite: 1].<br>
+            • Follow up: 1 LE for 15 MB (Bulk charging max 30 times), then 10 PT/MB (Micro charging)[cite: 1]. Inquire: *2000*9# | Opt-out: *2000*0#[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="DATA">
+          <td><b>Plus Business & Rollover Policy</b></td>
+          <td>
+            • <b>Plus Business Bundles:</b> 750MB (23 LE) up to 45,000MB (600 LE)[cite: 1]. All Apps = 1 Mega[cite: 1]. Manage via *2000*44#[cite: 1].<br>
+            • <b>MBs Rollover (ترحيل الميجابايتس):</b> Prepaid/Control only[cite: 1]. Rollover to next 4 weeks on: on-time renewal, upgrade, or repurchase[cite: 1]. Toggle code: *2000*28#[cite: 1]. (View in CCAT -> Products View -> MI Rollover)[cite: 1].
+          </td>
+        </tr>
+
+        <!-- POLICIES & SECURITY -->
+        <tr data-cat="POLICY">
+          <td><b>Multi-Factor Authentication (MFA)</b></td>
+          <td>
+            • <b>1-Factor MFA:</b> Name & Full National ID OR Date of Birth + Last 7 digits from ID[cite: 1]. (Used for: MI Act/Deact, On Bill add, Roaming/Int'l control lines, Plan change ≤ 3 lines)[cite: 1].<br>
+            • <b>2-Factor MFA:</b> Name + Full ID + Address + Choose 3 from 6 verifications (Last Bill, E-Mail, Line count, Auth balance, Last payment, Bill Cycle)[cite: 1]. (Used for: SIM Swap On Spot, Delegation SR, Suspension, Plan change > 3 lines, Churn, Transfer Ownership, Itemized calls)[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="POLICY">
+          <td><b>SIM Swap & PUK Policies</b></td>
+          <td>
+            • <b>SIM Swap Delegation to Branch:</b> Authorized dials <b>*247*9*Mobile*NationalID#</b> (2-Factor MFA required)[cite: 1].<br>
+            • <b>Emergency SIM Swap:</b> Authorized dials <b>*247*88*Mobile*NewSIMSerial#</b> or calls 247[cite: 1].<br>
+            • <b>Authorized SIM Swap:</b> Branch visit ONLY with company authorization letter[cite: 1].<br>
+            • <b>PUK Policy:</b> 3 wrong PIN = PUK lock | 10 wrong PUK = Purged SIM[cite: 1]. PUK check: *888*Mobile# with 2-Factor MFA[cite: 1].<br>
+            • <b>Over-scratched Voucher:</b> Dial 858 or *858*1# -> enter visible digits with * for missing numbers + Serial (Min 5 visible digits)[cite: 1].<br>
+            • <b>NTRA Registration:</b> End user dials *010*98# to prevent regulatory line suspension[cite: 1].
+          </td>
+        </tr>
+        <tr data-cat="POLICY">
+          <td><b>Line Suspension (إيقاف الخط)</b></td>
+          <td>
+            • <b>Lost & Stolen:</b> Siebel: Stolen & Lost Corporate[cite: 1]. Free for 6 days (once every 30 days)[cite: 1]. Auth code: *247*91# | Resume: *247*92#[cite: 1].<br>
+            • <b>Voluntary:</b> 15 Days (15 LE) | 30 Days (25 LE) charged on invoice via Authorized request[cite: 1].
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== SYSTEM 3: CCAT ==================== -->
+  <div id="ccat-system" class="system-module" style="padding:0; flex-direction:column;">
+    <div class="titlebar">
+      <span>CCAT - Customer Care Administration Tool & Products View</span>
+      <span>Billing Core v10.4</span>
+    </div>
+
+    <div class="toolbar">
+      <label><b>Query MSISDN:</b></label>
+      <input type="text" id="ccatQueryInput" value="1012345678" style="width: 100px;">
+      <button class="btn" onclick="searchMsisdnCCAT()">[Execute Query]</button>
+    </div>
+
+    <div class="main-workspace">
+      <div class="left-tree">
+        <div class="tree-header">CCAT Navigation</div>
+        <div class="tree-node active" id="tree-ccat-sub" onclick="loadCCATView('subscriber')">▶ <b>Subscriber Admin</b></div>
+        <div class="tree-node tree-sub" id="tree-ccat-prod" onclick="loadCCATView('products')">• <b>Products View (MI Quota)</b></div>
+        <div class="tree-node tree-sub" id="tree-ccat-da" onclick="loadCCATView('dedicated')">• Dedicated Accounts (DAs)</div>
+        <div class="tree-node tree-sub" id="tree-ccat-history" onclick="loadCCATView('acchistory')">• Account Admin History</div>
+        <div class="tree-node tree-sub" id="tree-ccat-scratch" onclick="loadCCATView('scratch')">• Scratch Cards & Refill</div>
+        <div class="tree-node tree-sub" id="tree-ccat-dispute" onclick="loadCCATView('dispute')">• Balance Dispute (Usage)</div>
+        <div class="tree-node" id="tree-ccat-barring" onclick="loadCCATView('barring')">▶ <b>Refill Barring (Unbar 858)</b></div>
+      </div>
+
+      <div class="right-content">
+        <div style="background: #EBE9ED; border: 1px solid #7F9DB9; margin-bottom: 2px; padding: 4px;">
+          <div class="grid-form" style="grid-template-columns: repeat(6, 1fr);">
+            <label>MSISDN:</label><input type="text" id="cc-msisdn" readonly>
+            <label>Rate Plan:</label><input type="text" id="cc-plan" readonly>
+            <label>Main Balance:</label><input type="text" id="cc-balance" readonly style="font-weight:bold; color:green;">
+            <label>Refill Status:</label><span id="cc-refill-st" class="badge-ok">UNBARRED</span>
+            <label>Bill Cycle Code:</label><input type="text" id="cc-bc" readonly style="font-weight:bold; color:#A00;">
+            <label>Price Group:</label><input type="text" id="cc-pg" readonly>
+          </div>
+        </div>
+
+        <div class="tab-strip">
+          <div id="tab-btn-sub" class="active" onclick="loadCCATView('subscriber')">Subscriber Admin</div>
+          <div id="tab-btn-prod" onclick="loadCCATView('products')">Products View (Bundles)</div>
+          <div id="tab-btn-da" onclick="loadCCATView('dedicated')">Dedicated Accounts (DAs)</div>
+          <div id="tab-btn-history" onclick="loadCCATView('acchistory')">Account Admin History</div>
+          <div id="tab-btn-dispute" onclick="loadCCATView('dispute')">Balance Dispute</div>
+        </div>
+
+        <div class="applet-body" id="ccat-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Status Bar -->
+  <div class="status-bar">
+    <span>Ready | Oracle Systems Suite Online | Multi-App Synchronized</span>
+    <span>Logged Agent: Mohamed Waleed (80420018)</span>
+  </div>
+
+  <script>
+    // Database containing 6 scenarios with anonymous IDs and standard Bill Cycles
+    let db = {
+      "1012345678": {
+        msisdn: "01012345678",
+        role: "Authorized (المفوض)",
+        priceGroup: "SME (Medium Enterprise)",
+        billCycleCode: "BC 07",
+        renewDay: "يوم 7 من كل شهر",
+        status: "ACTIVE",
+        statusReason: "Normal Operation",
+        plan: "Business Flex 115",
+        simSerial: "8920021003498127391",
+        secretLast7: "1234567",
+        balance: "185.00 EGP",
+        refillBarred: false,
+        da1: 1500, da2: 0, da5: 0, da27: 3500,
+        suppServices: [
+          { name: "GPRS / Mobile Internet Basic", status: "Active", source: "HLR Core", date: "2025-01-10" },
+          { name: "Internet APN (Vodafone Web)", status: "Active", source: "HLR Core", date: "2025-01-10" },
+          { name: "Roaming Data Service (GPRS Abroad)", status: "Active", source: "HLR Profile", date: "2025-06-15" },
+          { name: "International Direct Calling (IDD)", status: "Active", source: "HLR Core", date: "2025-01-10" },
+          { name: "VoLTE HD Voice", status: "Active", source: "HLR Core", date: "2025-01-10" },
+          { name: "Missed Call Keeper (MCK)", status: "Active", source: "Supplementary", date: "2025-06-15" }
+        ],
+        subMgmt: [
+          { service: "Call Tone Service", cost: "3.00 LE / Month", status: "Active", chargedFrom: "Scratch Balance", lastCharge: "2026-08-01" }
+        ],
+        onBill: { serviceType: "3alfatoora Service", limit: "45.00 EGP", activeBucket: "MI 3alfatoora 2500MB", renewCycle: "BC 07 (Day 7)" },
+        invoices: [
+          { invNo: "INV-2026-08-001", amount: "185.00 EGP", issueDate: "2026-08-07 (تجديد الباقة)", dueDate: "2026-08-27 (ميعاد الدفع)", status: "Paid (سددت)", paymentDate: "2026-08-12" },
+          { invNo: "INV-2026-07-001", amount: "210.00 EGP", issueDate: "2026-07-07 (تجديد الباقة)", dueDate: "2026-07-27 (ميعاد الدفع)", status: "Paid (سددت)", paymentDate: "2026-07-10" }
+        ],
+        products: [{ name: "Extreme Net 4000MB", total: "4000 MB", consumed: "2450 MB", remaining: "1550 MB", expiry: "2026-09-06", rollover: "Active" }],
+        history: [
+          { action: "Line Activation", agent: "8041002", time: "2025-01-10 10:00", result: "Completed" },
+          { action: "Rate Plan Migration to Flex 115", agent: "80410099", time: "2026-06-01 11:20", result: "Success" }
+        ]
+      },
+      "1055554444": {
+        msisdn: "01055554444",
+        role: "Authorized (المفوض)",
+        priceGroup: "Government (TCA)",
+        billCycleCode: "BC 25",
+        renewDay: "يوم 25 من كل شهر",
+        status: "ACTIVE",
+        statusReason: "Normal Operation (Post Voluntary Susp)",
+        plan: "Vodafone Red Business 2026",
+        simSerial: "8920021005555666670",
+        secretLast7: "2000000",
+        balance: "4,250.00 EGP",
+        refillBarred: false,
+        da1: 4000, da2: 1500, da5: 5000, da27: 0,
+        suppServices: [
+          { name: "GPRS / LTE High Speed Data", status: "Active", source: "HLR Core", date: "2024-03-12" },
+          { name: "Internet APN (Vodafone Web)", status: "Active", source: "HLR Core", date: "2024-03-12" },
+          { name: "International Calling (Open Worldwide)", status: "Active", source: "HLR Profile", date: "2024-03-12" },
+          { name: "Take Bundle Abroad (Roaming Open)", status: "Active", source: "HLR Profile", date: "2026-01-01" },
+          { name: "Roaming GPRS / LTE Data", status: "Active", source: "HLR Profile", date: "2026-01-01" }
+        ],
+        subMgmt: [],
+        onBill: { serviceType: "MI On Bill Service", limit: "300.00 EGP", activeBucket: "Red Extra 20GB", renewCycle: "BC 25 (Day 25)" },
+        invoices: [
+          { invNo: "GOV-2026-07-889", amount: "4,250.00 EGP", issueDate: "2026-07-25 (تجديد الباقة)", dueDate: "2026-08-20 (ميعاد الدفع)", status: "Unpaid (مستحقة للدفع)", paymentDate: "--" }
+        ],
+        products: [{ name: "Red Business 50GB Data Bucket", total: "50,000 MB", consumed: "12,400 MB", remaining: "37,600 MB", expiry: "2026-09-24", rollover: "Active" }],
+        history: [
+          { action: "Line Activation", agent: "8041001", time: "2024-03-12 09:00", result: "Completed" },
+          { action: "Corporate Voluntary Suspension (15 Days)", agent: "8042011", time: "2026-06-15 12:00", result: "Suspended" },
+          { action: "Line Resumed (*247*92#)", agent: "8042011", time: "2026-06-30 12:00", result: "Active" }
+        ]
+      },
+      "1099998888": {
+        msisdn: "01099998888",
+        role: "End User (المستخدم)",
+        priceGroup: "SOHO (Small Office)",
+        billCycleCode: "BC 11",
+        renewDay: "يوم 11 من كل شهر",
+        status: "SUSPENDED",
+        statusReason: "Stolen & Lost Corporate (*247*91#)",
+        plan: "2013 Business El Asly 50",
+        simSerial: "8920021008888123452",
+        secretLast7: "2398741",
+        balance: "0.00 EGP",
+        refillBarred: true,
+        da1: 2000, da2: 90, da5: 1200, da27: 0,
+        suppServices: [
+          { name: "GPRS / Data Service", status: "Suspended", source: "HLR Core", date: "2026-08-19" },
+          { name: "Outbound Call Barring", status: "Active (Barred)", source: "HLR Core", date: "2026-08-19" }
+        ],
+        subMgmt: [],
+        onBill: { serviceType: "None", limit: "0.00 EGP", activeBucket: "None", renewCycle: "BC 11 (Day 11)" },
+        invoices: [
+          { invNo: "SOHO-2026-08-110", amount: "65.00 EGP", issueDate: "2026-08-11 (تجديد الباقة)", dueDate: "2026-08-31 (ميعاد الدفع)", status: "Unpaid (مستحقة)", paymentDate: "--" }
+        ],
+        products: [{ name: "Super Pass Social 250MB", total: "250 MB", consumed: "250 MB", remaining: "0 MB", expiry: "Expired", rollover: "Inactive" }],
+        history: [
+          { action: "Line Activation", agent: "8041005", time: "2025-05-15 14:00", result: "Completed" },
+          { action: "Line Suspended (Stolen & Lost by Auth)", agent: "80410022", time: "2026-08-19 14:05", result: "Suspended" }
+        ]
+      },
+      "1033332222": {
+        msisdn: "01033332222",
+        role: "End User (المستخدم)",
+        priceGroup: "SME (Small Enterprise)",
+        billCycleCode: "BC 09",
+        renewDay: "يوم 20 من كل شهر (BC 09)",
+        status: "ACTIVE",
+        statusReason: "Normal Operation (Post Vol Susp)",
+        plan: "Business Flex 60",
+        simSerial: "892002100333322221",
+        secretLast7: "2345689",
+        balance: "42.00 EGP",
+        refillBarred: false,
+        da1: 1500, da2: 20, da5: 100, da27: 1500,
+        suppServices: [
+          { name: "GPRS / Mobile Internet", status: "Active", source: "HLR Core", date: "2024-11-01" },
+          { name: "Call Tone Service (5555)", status: "Active", source: "Supplementary", date: "2026-03-01" }
+        ],
+        subMgmt: [
+          { service: "Call Tone Monthly", cost: "3.00 LE / Month", status: "Active", chargedFrom: "Scratch Balance", lastCharge: "2026-08-01" }
+        ],
+        onBill: { serviceType: "3alfatoora Service", limit: "25.00 EGP", activeBucket: "MI 3alfatoora 1100MB", renewCycle: "BC 09 (Day 20)" },
+        invoices: [
+          { invNo: "SME-2026-08-301", amount: "85.00 EGP", issueDate: "2026-08-20 (تجديد الباقة)", dueDate: "2026-09-09 (ميعاد الدفع)", status: "Paid (سددت)", paymentDate: "2026-08-20" }
+        ],
+        products: [{ name: "Extreme Net 1100MB", total: "1100 MB", consumed: "900 MB", remaining: "200 MB", expiry: "2026-09-19", rollover: "Active" }],
+        history: [
+          { action: "Line Activation", agent: "8041010", time: "2024-11-01 08:30", result: "Completed" },
+          { action: "Corporate Voluntary Suspension (30 Days)", agent: "8042055", time: "2026-04-20 10:00", result: "Suspended" },
+          { action: "Line Resumed & Reactivated", agent: "8042055", time: "2026-05-20 10:00", result: "Active State" }
+        ]
+      },
+      "1077776666": {
+        msisdn: "01077776666",
+        role: "End User (المستخدم)",
+        priceGroup: "SME (Medium Enterprise)",
+        billCycleCode: "BC 07",
+        renewDay: "يوم 7 من كل شهر",
+        status: "ACTIVE",
+        statusReason: "Normal Operation",
+        plan: "Business Flex 2025 (Flex 175)",
+        simSerial: "892002100777766663",
+        secretLast7: "3999912",
+        balance: "75.00 EGP",
+        refillBarred: false,
+        da1: 1000, da2: 0, da5: 0, da27: 9500,
+        suppServices: [
+          { name: "GPRS / 5G Mobile Internet", status: "Active", source: "HLR Core", date: "2026-01-15" },
+          { name: "VoLTE HD Voice", status: "Active", source: "HLR Core", date: "2026-01-15" }
+        ],
+        subMgmt: [
+          { service: "Daily News Portal", cost: "0.25 LE / Day", status: "Active", chargedFrom: "Scratch Balance", lastCharge: "2026-08-20" }
+        ],
+        onBill: { serviceType: "3alfatoora Service", limit: "52.00 EGP", activeBucket: "MI 3alfatoora 4000MB", renewCycle: "BC 07 (Day 7)" },
+        invoices: [
+          { invNo: "EXP-2026-08-701", amount: "175.00 EGP", issueDate: "2026-08-07 (تجديد الباقة)", dueDate: "2026-08-27 (ميعاد الدفع)", status: "Paid (سددت)", paymentDate: "2026-08-09" }
+        ],
+        products: [{ name: "Plus Business 4750MB", total: "4750 MB", consumed: "1200 MB", remaining: "3550 MB", expiry: "2026-09-06", rollover: "Active" }],
+        history: [{ action: "Line Activation", agent: "8041009", time: "2026-01-15 11:00", result: "Completed" }]
+      },
+      "1044441111": {
+        msisdn: "01044441111",
+        role: "Authorized (المفوض)",
+        priceGroup: "Syndicates (Government)",
+        billCycleCode: "BC 09",
+        renewDay: "يوم 20 من كل شهر (BC 09)",
+        status: "ACTIVE",
+        statusReason: "Normal Operation",
+        plan: "Telecom Egypt Tariff Revamp",
+        simSerial: "892002100444411110",
+        secretLast7: "1200111",
+        balance: "610.00 EGP",
+        refillBarred: false,
+        da1: 1000, da2: 120, da5: 2200, da27: 0,
+        suppServices: [
+          { name: "GPRS / Data Basic", status: "Active", source: "HLR Core", date: "2024-05-10" },
+          { name: "Intra-Company Closed Group", status: "Active", source: "HLR Core", date: "2024-05-10" }
+        ],
+        subMgmt: [],
+        onBill: { serviceType: "MI On Bill Service", limit: "95.00 EGP", activeBucket: "TE Extreme 2500MB", renewCycle: "BC 09 (Day 20)" },
+        invoices: [
+          { invNo: "SYN-2026-08-990", amount: "46.00 EGP", issueDate: "2026-08-20 (تجديد الباقة)", dueDate: "2026-09-09 (ميعاد الدفع)", status: "Paid (سددت)", paymentDate: "2026-08-20" }
+        ],
+        products: [{ name: "TE Data Pool 2500MB", total: "2500 MB", consumed: "1800 MB", remaining: "700 MB", expiry: "2026-09-19", rollover: "Inactive" }],
+        history: [{ action: "Line Activation", agent: "8041003", time: "2024-05-10 10:00", result: "Completed" }]
+      }
+    };
+
+    let activeKey = "1012345678";
+    let activeSiebelSub = "summary";
+    let activeCCATSub = "subscriber";
+    let currentCategory = "ALL";
+
+    function switchMainSystem(sys, btnEl) {
+      document.querySelectorAll('.sys-tab').forEach(b => b.classList.remove('active-sys'));
+      document.getElementById('siebel-system').style.display = 'none';
+      document.getElementById('asalny-system').style.display = 'none';
+      document.getElementById('ccat-system').style.display = 'none';
+
+      if (sys === 'siebel') {
+        document.getElementById('siebel-system').style.display = 'flex';
+      } else if (sys === 'ccat') {
+        document.getElementById('ccat-system').style.display = 'flex';
+      } else {
+        document.getElementById(sys + '-system').style.display = 'block';
+      }
+      btnEl.classList.add('active-sys');
+    }
+
+    function searchMsisdn() {
+      const q = document.getElementById('queryInput').value.trim();
+      if (db[q]) {
+        activeKey = q;
+        loadSiebelHeader();
+        loadSiebelView(activeSiebelSub);
+        loadCCATHeader();
+      } else {
+        alert("MSISDN not found in Siebel DB! (Enter without zero)");
+      }
+    }
+
+    function loadSiebelHeader() {
+      const c = db[activeKey];
+      document.getElementById('h-msisdn').value = c.msisdn;
+      document.getElementById('h-role').value = c.role;
+      document.getElementById('h-pricegroup').value = c.priceGroup;
+      document.getElementById('h-plan').value = c.plan;
+      document.getElementById('h-bc').value = c.billCycleCode;
+
+      const st = document.getElementById('h-status');
+      st.innerText = c.status;
+      st.className = c.status === "ACTIVE" ? "badge-ok" : "badge-err";
+
+      // Side Panel
+      document.getElementById('side-role').innerText = c.role;
+      document.getElementById('side-segment').innerText = c.priceGroup;
+      document.getElementById('side-bc').innerText = c.billCycleCode;
+      document.getElementById('side-renewday').innerText = c.renewDay;
+      const sideSt = document.getElementById('side-state');
+      sideSt.innerText = c.status;
+      sideSt.style.color = c.status === "ACTIVE" ? "green" : "red";
+      document.getElementById('verifyResult').innerText = "";
+      document.getElementById('idVerifyInput').value = "";
+    }
+
+    function verifyNationalID() {
+      const entered = document.getElementById('idVerifyInput').value.trim();
+      const res = document.getElementById('verifyResult');
+      const c = db[activeKey];
+      if (entered === c.secretLast7) {
+        res.innerHTML = "<span style='color:green;'>✓ 1-Factor MFA: VERIFIED MATCH</span>";
+      } else {
+        res.innerHTML = "<span style='color:red;'>✗ INVALID: Data Mismatch</span>";
+      }
+    }
+
+    function loadSiebelView(v) {
+      activeSiebelSub = v;
+      const body = document.getElementById('siebel-content');
+      const c = db[activeKey];
+
+      document.querySelectorAll('#siebel-system .tree-node').forEach(d => d.classList.remove('active'));
+      const treeEl = document.getElementById('tree-' + v);
+      if (treeEl) treeEl.classList.add('active');
+
+      document.querySelectorAll('.tab-strip div').forEach(d => d.classList.remove('active'));
+      const tabEl = document.getElementById('tab-btn-' + v);
+      if (tabEl) tabEl.classList.add('active');
+
+      if (v === 'summary') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>Line Summary & Price Group Overview</b></legend>
+            <div class="grid-form">
+              <label>Role:</label><input type="text" value="${c.role}" readonly>
+              <label>Line Status:</label><input type="text" value="${c.status}" readonly>
+              <label>Status Reason:</label><input type="text" value="${c.statusReason}" readonly>
+              <label>Price Group:</label><input type="text" value="${c.priceGroup}" readonly>
+            </div>
+          </fieldset>
+        `;
+      }
+      else if (v === 'line-status') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>Line Suspension Control (Requires 2-Factor MFA)</b></legend>
+            <div class="grid-form">
+              <label>Current Status:</label><input type="text" value="${c.status}" readonly>
+              <label>Status Reason:</label><input type="text" value="${c.statusReason}" readonly>
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 6px;">
+              <button class="btn" onclick="applySuspension('ACTIVE', 'Resumed by Agent (*247*92#)')">Unbar / Resume Line</button>
+              <button class="btn btn-red" onclick="applySuspension('SUSPENDED', 'Stolen & Lost Corporate (6 Days Free)')">Suspend (Lost & Stolen *247*91#)</button>
+              <button class="btn btn-red" onclick="applySuspension('SUSPENDED', 'Corporate Voluntary 15 Days (15 LE)')">Voluntary Suspend (15 Days)</button>
+              <button class="btn btn-red" onclick="applySuspension('SUSPENDED', 'Corporate Voluntary 30 Days (25 LE)')">Voluntary Suspend (30 Days)</button>
+            </div>
+          </fieldset>
+        `;
+      }
+      else if (v === 'sim-swap') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>SIM Swap Execution Wizard (Requires 2-Factor MFA)</b></legend>
+            <div class="grid-form">
+              <label>Current SIM Serial:</label><input type="text" value="${c.simSerial}" readonly>
+              <label>New SIM Serial (19 Digits):</label><input type="text" id="newSimInput" placeholder="892002100XXXXXXXXXX">
+              <label>Execution Method:</label>
+              <select><option>Emergency SIM Replacement (*247*88*)</option><option>Branch Delegation Authorization (*247*9*)</option></select>
+              <label>Swap Reason:</label>
+              <select><option>Lost / Stolen SIM</option><option>Damaged SIM</option><option>Upgrade</option></select>
+            </div>
+            <button class="btn" style="margin-top: 8px; font-weight: bold;" onclick="executeSimSwap()">[Process SIM Swap & Sync HLR]</button>
+          </fieldset>
+        `;
+      }
+      else if (v === 'supp-services') {
+        let rows = c.suppServices.map(s => `
+          <tr><td><b>${s.name}</b></td><td style="font-weight:bold; color:${s.status.includes('Active')?'green':'red'};">${s.status}</td><td>${s.source}</td><td>${s.date}</td></tr>
+        `).join('');
+        body.innerHTML = `
+          <b>Supplementary Services (HLR Core, International & GPRS Configurations)</b>
+          <table class="s-table">
+            <thead><tr><th>Service / Feature Name</th><th>Status</th><th>Profile Node</th><th>Last Config Date</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+      else if (v === 'sub-mgmt') {
+        let rows = c.subMgmt.map((sm, idx) => `
+          <tr>
+            <td><b>${sm.service}</b></td>
+            <td>${sm.cost}</td>
+            <td>${sm.chargedFrom}</td>
+            <td>${sm.lastCharge}</td>
+            <td style="color:green; font-weight:bold;">${sm.status}</td>
+            <td><button class="btn" onclick="cancelScratchSub(${idx})">Cancel Subscription</button></td>
+          </tr>
+        `).join('');
+        body.innerHTML = `
+          <b>Subscription Management (خدمات يتم خصمها من رصيد كروت الشحن فقط)</b>
+          <table class="s-table">
+            <thead><tr><th>Active Service (VAS)</th><th>Tariff / Cost</th><th>Deducted From</th><th>Last Deduction</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>${rows.length ? rows : '<tr><td colspan="6">No active paid VAS subscriptions deducted from scratch balance.</td></tr>'}</tbody>
+          </table>
+        `;
+      }
+      else if (v === 'on-bill') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>3alfatoora & MI On-Bill Management</b></legend>
+            <div class="grid-form">
+              <label>Service Type:</label><input type="text" value="${c.onBill.serviceType}" readonly style="font-weight:bold; color:navy;">
+              <label>Available Limit:</label><input type="text" value="${c.onBill.limit}" readonly style="font-weight:bold; color:green;">
+              <label>Active Data Bucket:</label><input type="text" value="${c.onBill.activeBucket}" readonly>
+              <label>Renewal Cycle:</label><input type="text" value="${c.onBill.renewCycle}" readonly>
+            </div>
+          </fieldset>
+        `;
+      }
+      else if (v === 'payment') {
+        let rows = c.invoices.map(inv => `
+          <tr>
+            <td><b>${inv.invNo}</b></td>
+            <td style="font-weight:bold; color:#0A246A;">${inv.amount}</td>
+            <td><b>${inv.issueDate}</b></td>
+            <td style="color:#A00; font-weight:bold;">${inv.dueDate}</td>
+            <td style="font-weight:bold; color:${inv.status.includes('Paid')?'green':'red'};">${inv.status}</td>
+            <td>${inv.paymentDate}</td>
+          </tr>
+        `).join('');
+        body.innerHTML = `
+          <b>Enterprise Billing & Bill Cycle Management</b>
+          <div style="background:#FFFFE0; padding:5px; border:1px solid #E6DB55; margin-bottom:6px;">
+            <b>Bill Cycle Assigned:</b> <span style="color:#A00; font-weight:bold;">${c.billCycleCode}</span> (${c.renewDay})
+          </div>
+          <table class="s-table">
+            <thead><tr><th>Invoice Number</th><th>Invoice Amount</th><th>Issue Date (ميعاد التجديد)</th><th>Due Date (ميعاد الدفع)</th><th>Payment Status</th><th>Settlement Date</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+      else if (v === 'history') {
+        let rows = c.history.map(h => `
+          <tr><td>${h.action}</td><td>${h.agent}</td><td>${h.time}</td><td style="color:green; font-weight:bold;">${h.result}</td></tr>
+        `).join('');
+        body.innerHTML = `
+          <b>Line Lifecycle Audit Trail (Activation, Suspensions & Resumptions)</b>
+          <table class="s-table">
+            <thead><tr><th>Operation / Event</th><th>Agent ID</th><th>Timestamp</th><th>Lifecycle Result</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+    }
+
+    function applySuspension(st, reason) {
+      db[activeKey].status = st;
+      db[activeKey].statusReason = reason;
+      db[activeKey].history.unshift({ action: "Status Change -> " + reason, agent: "80420018", time: new Date().toLocaleTimeString(), result: st });
+      loadSiebelHeader();
+      loadSiebelView('line-status');
+    }
+
+    function executeSimSwap() {
+      const val = document.getElementById('newSimInput').value.trim();
+      if (val.length < 10) { alert("Enter valid 19-digit SIM Serial!"); return; }
+      db[activeKey].simSerial = val;
+      db[activeKey].history.unshift({ action: "SIM Swap -> " + val, agent: "80420018", time: new Date().toLocaleTimeString(), result: "HLR_OK" });
+      alert("SIM Swap completed successfully.");
+      loadSiebelHeader();
+      loadSiebelView('sim-swap');
+    }
+
+    function cancelScratchSub(idx) {
+      db[activeKey].subMgmt.splice(idx, 1);
+      alert("VAS service deducted from scratch balance cancelled.");
+      loadSiebelView('sub-mgmt');
+    }
+
+    // CCAT Functions
+    function searchMsisdnCCAT() {
+      const q = document.getElementById('ccatQueryInput').value.trim();
+      if (db[q]) {
+        activeKey = q;
+        loadCCATHeader();
+        loadCCATView(activeCCATSub);
+        loadSiebelHeader();
+      } else {
+        alert("MSISDN not found in CCAT Database!");
+      }
+    }
+
+    function loadCCATHeader() {
+      const c = db[activeKey];
+      document.getElementById('cc-msisdn').value = c.msisdn;
+      document.getElementById('cc-plan').value = c.plan;
+      document.getElementById('cc-balance').value = c.balance;
+      document.getElementById('cc-pg').value = c.priceGroup;
+      document.getElementById('cc-bc').value = c.billCycleCode + " (" + c.renewDay + ")";
+      
+      const st = document.getElementById('cc-refill-st');
+      st.innerText = c.refillBarred ? "BARRED (858 Lock)" : "UNBARRED";
+      st.className = c.refillBarred ? "badge-err" : "badge-ok";
+    }
+
+    function loadCCATView(v) {
+      activeCCATSub = v;
+      const body = document.getElementById('ccat-content');
+      const c = db[activeKey];
+
+      document.querySelectorAll('#ccat-system .tree-node').forEach(d => d.classList.remove('active'));
+      const treeEl = document.getElementById('tree-ccat-' + (v === 'subscriber' ? 'sub' : (v === 'products' ? 'prod' : (v === 'dedicated' ? 'da' : (v === 'acchistory' ? 'history' : v)))));
+      if (treeEl) treeEl.classList.add('active');
+
+      document.querySelectorAll('#ccat-system .tab-strip div').forEach(d => d.classList.remove('active'));
+      const tabEl = document.getElementById('tab-btn-' + (v === 'subscriber' ? 'sub' : (v === 'products' ? 'prod' : (v === 'dedicated' ? 'da' : (v === 'acchistory' ? 'history' : v)))));
+      if (tabEl) tabEl.classList.add('active');
+
+      if (v === 'subscriber') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>Subscriber Administration Overview</b></legend>
+            <div class="grid-form">
+              <label>Role:</label><input type="text" value="${c.role}" readonly>
+              <label>Account Status:</label><input type="text" value="${c.status}" readonly>
+              <label>Main Cash Balance:</label><input type="text" value="${c.balance}" readonly style="font-weight:bold;">
+              <label>Bill Cycle Code:</label><input type="text" value="${c.billCycleCode} (${c.renewDay})" readonly>
+            </div>
+          </fieldset>
+        `;
+      }
+      else if (v === 'products') {
+        let rows = c.products.map(p => `
+          <tr>
+            <td><b>${p.name}</b></td>
+            <td>${p.total}</td>
+            <td style="color:#A00; font-weight:bold;">${p.consumed}</td>
+            <td style="color:green; font-weight:bold;">${p.remaining}</td>
+            <td>${p.expiry}</td>
+            <td>${p.rollover}</td>
+          </tr>
+        `).join('');
+        body.innerHTML = `
+          <b>Products View - Mobile Internet Quotas & USB Buckets</b>
+          <table class="s-table">
+            <thead><tr><th>Product / Bundle Name</th><th>Total Quota</th><th>Consumed Data</th><th>Remaining Data</th><th>Renewal / Expiry</th><th>Rollover Status</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+      else if (v === 'dedicated') {
+        body.innerHTML = `
+          <b>Dedicated Accounts (Real-time Balances)</b>
+          <table class="s-table">
+            <thead><tr><th>DA Code</th><th>Account Type / Description</th><th>Balance Units</th><th>Reset Behavior</th></tr></thead>
+            <tbody>
+              <tr><td><b>DA 1</b></td><td>Intra-Company Minutes</td><td style="font-weight:bold; color:blue;">${c.da1} Min</td><td>Bill Cycle Reset</td></tr>
+              <tr><td><b>DA 2</b></td><td>X-Net Minutes</td><td style="font-weight:bold; color:blue;">${c.da2} Min</td><td>Bill Cycle Reset</td></tr>
+              <tr><td><b>DA 5</b></td><td>On-Net Minutes</td><td style="font-weight:bold; color:blue;">${c.da5} Min</td><td>Bill Cycle Reset</td></tr>
+              <tr><td><b>DA 27</b></td><td>Flex Units / Flex Extra</td><td style="font-weight:bold; color:green;">${c.da27} Flex</td><td>Bill Cycle Reset</td></tr>
+            </tbody>
+          </table>
+        `;
+      }
+      else if (v === 'acchistory') {
+        let rows = c.invoices.map(inv => `
+          <tr><td>Invoice Settlement</td><td style="font-weight:bold;">${inv.amount}</td><td>${inv.invNo} (${inv.status})</td><td>${inv.issueDate}</td></tr>
+        `).join('');
+        body.innerHTML = `
+          <b>Account Admin History & Invoice Settlements</b>
+          <table class="s-table">
+            <thead><tr><th>Type</th><th>Amount</th><th>Reference</th><th>Timestamp</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+      else if (v === 'scratch') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>Scratch Card Refill & Over-scratch Solution</b></legend>
+            <div class="grid-form">
+              <label>Voucher Serial (14 Digits):</label><input type="text" id="vSerial" placeholder="89201990000000">
+              <label>Voucher Pin (Use * for scratched):</label><input type="text" id="vPin" placeholder="1234***5678**">
+            </div>
+            <button class="btn" style="margin-top:8px; font-weight:bold;" onclick="processVoucher()">[Execute Refill via CCAT]</button>
+          </fieldset>
+        `;
+      }
+      else if (v === 'dispute') {
+        body.innerHTML = `
+          <b>CCAT Balance Dispute - Last Transactions Usage Details</b>
+          <table class="s-table">
+            <thead><tr><th>Type</th><th>Sub-Type</th><th>Date & Time</th><th>Actual Sec / KB</th><th>Cost</th><th>Destination</th></tr></thead>
+            <tbody>
+              <tr><td>Usage</td><td>Voice (On-Net)</td><td>2026-08-20 18:22</td><td>145 Sec</td><td>0.00 (DA5)</td><td>01005269281</td></tr>
+              <tr><td>Usage</td><td>Data Traffic</td><td>2026-08-20 17:10</td><td>45,056 KB</td><td>0.00 (DA27)</td><td>Internet APN</td></tr>
+            </tbody>
+          </table>
+        `;
+      }
+      else if (v === 'barring') {
+        body.innerHTML = `
+          <fieldset style="border: 1px solid #7F9DB9; padding: 8px;">
+            <legend><b>Refill Barring Management</b></legend>
+            <p>Current Barring Status: <b>${c.refillBarred ? "BARRED (Wrong Recharge Attempts)" : "CLEAN (Unbarred)"}</b></p>
+            <button class="btn" onclick="unbarRefill()">[Unbar 858 Recharge Lock]</button>
+          </fieldset>
+        `;
+      }
+    }
+
+    function processVoucher() {
+      const pin = document.getElementById('vPin').value;
+      if (pin.replace(/\*/g, '').length < 5) {
+        alert("Error: At least 5 digits must be visible!");
+        return;
+      }
+      db[activeKey].balance = (parseFloat(db[activeKey].balance) + 50.0).toFixed(2) + " EGP";
+      alert("Voucher credited successfully.");
+      loadCCATHeader();
+      loadCCATView('subscriber');
+    }
+
+    function unbarRefill() {
+      db[activeKey].refillBarred = false;
+      alert("858 Recharge lock removed successfully.");
+      loadCCATHeader();
+      loadCCATView('barring');
+    }
+
+    function filterCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active-cat'));
+      btn.classList.add('active-cat');
+      applyCombinedFilter();
+    }
+
+    function filterAsalny() {
+      applyCombinedFilter();
+    }
+
+    function applyCombinedFilter() {
+      let filter = document.getElementById('asalnySearch').value.toLowerCase();
+      let trs = document.getElementById('asalnyTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+      
+      for (let i = 0; i < trs.length; i++) {
+        let rowCat = trs[i].getAttribute('data-cat');
+        let text = trs[i].innerText.toLowerCase();
+        let matchesCat = (currentCategory === 'ALL' || rowCat === currentCategory);
+        let matchesSearch = text.includes(filter);
+
+        trs[i].style.display = (matchesCat && matchesSearch) ? '' : 'none';
+      }
+    }
+
+    // App Initialization
+    loadSiebelHeader();
+    loadSiebelView('summary');
+    loadCCATHeader();
+  </script>
+</body>
+</html>
